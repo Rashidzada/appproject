@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import JsonResponse
 from .models import Project, Skill, Contact
 from .forms import ContactForm
 from django.contrib import messages
@@ -18,8 +19,19 @@ def home(request):
         form = ContactForm(request.POST)
         if form.is_valid():
             form.save()
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Your message has been sent successfully!'
+                })
             messages.success(request, 'Your message has been sent successfully!')
             form = ContactForm()
+        else:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Please check your input and try again.'
+                })
     else:
         form = ContactForm()
     
