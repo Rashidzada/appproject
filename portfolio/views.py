@@ -1,33 +1,34 @@
-from django.shortcuts import render, redirect
-from django.contrib import messages
+from django.shortcuts import render
 from .models import Project, Skill, Contact
+from .forms import ContactForm
+from django.contrib import messages
 
 # Create your views here.
 
 def home(request):
     projects = Project.objects.all().order_by('-created_at')
-    backend_skills = Skill.objects.filter(category='backend')
-    frontend_skills = Skill.objects.filter(category='frontend')
+    skills = Skill.objects.all()
+    
+    # Group skills by category
+    frontend_skills = skills.filter(category='frontend')
+    backend_skills = skills.filter(category='backend')
+    other_skills = skills.filter(category='other')
     
     if request.method == 'POST':
-        name = request.POST.get('name')
-        email = request.POST.get('email')
-        message = request.POST.get('message')
-        
-        if name and email and message:
-            Contact.objects.create(
-                name=name,
-                email=email,
-                message=message
-            )
-            messages.success(request, 'Thank you for your message! I will get back to you soon.')
-            return redirect('home')
-        else:
-            messages.error(request, 'Please fill in all fields.')
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your message has been sent successfully!')
+            form = ContactForm()
+    else:
+        form = ContactForm()
     
     context = {
         'projects': projects,
-        'backend_skills': backend_skills,
         'frontend_skills': frontend_skills,
+        'backend_skills': backend_skills,
+        'other_skills': other_skills,
+        'form': form
     }
+    
     return render(request, 'portfolio/home.html', context)
