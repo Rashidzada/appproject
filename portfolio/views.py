@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from .models import Project, Skill, Contact
 from .forms import ContactForm
-from django.contrib import messages
 
 # Create your views here.
 
@@ -22,10 +21,8 @@ def home(request):
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'status': 'success',
-                    'message': 'Your message has been sent successfully!'
+                    'message': 'Thank you for your message! I will get back to you soon.'
                 })
-            messages.success(request, 'Your message has been sent successfully!')
-            form = ContactForm()
         else:
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
